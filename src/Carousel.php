@@ -48,6 +48,10 @@ class Carousel extends Widget
      */
     public $showIndicators = true;
     /**
+     * @var bool whether carousel previews (<ol> tag with thumbnails anchors to items) should be displayed or not.
+     */
+    public $showPreviews = true;
+    /**
      * @var array list of slides in the carousel. Each array element represents a single
      * slide with the following structure:
      *
@@ -85,7 +89,8 @@ class Carousel extends Widget
             $this->renderIndicators(),
             $this->renderItems(),
             $this->renderControls(),
-            Html::endTag('div')
+            Html::endTag('div'),
+            $this->renderPreviews()
         ]) . "\n";
     }
 
@@ -176,5 +181,26 @@ class Carousel extends Widget
         } else {
             throw new InvalidConfigException('The "controls" property must be either false or an array of two elements.');
         }
+    }
+
+    /**
+     * Renders carousel thumbnails preview.
+     * @return string the rendering result
+     */
+    public function renderPreviews()
+    {
+        if ($this->showPreviews === false) {
+            return '';
+        }
+        $previews = [];
+        for ($i = 0, $count = count($this->items); $i < $count; $i++) {
+            $options = ['data-target' => '#' . $this->options['id'], 'data-slide-to' => $i];
+            if ($i === 0) {
+                Html::addCssClass($options, 'active');
+            }
+            $previews[] = Html::tag('li', $this->items[$i]['content'], $options);
+        }
+
+        return Html::tag('ol', implode("\n", $previews), ['class' => 'carousel-previews']);
     }
 }
